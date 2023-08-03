@@ -52,7 +52,7 @@ public class Deck : MonoBehaviour
             card.SetActive(true);
             card.transform.position = startPosition;
 
-            startPosition += new Vector3(60, 0);
+            startPosition += new Vector3(240, 0);
         }
         _cards = tmp.ToArray();
     }
@@ -61,13 +61,13 @@ public class Deck : MonoBehaviour
     private Vector3 GetStartPosition(List<GameObject> tmp, Vector3 startPosition)
     {
         if (tmp.Count >= 5)
-            startPosition = transform.position + new Vector3(-120, 0, 0);
+            startPosition = transform.position + new Vector3(-480, 0, 0);
         else if (tmp.Count == 4)
-            startPosition = transform.position + new Vector3(-90, 0, 0);
+            startPosition = transform.position + new Vector3(-360, 0, 0);
         else if (tmp.Count == 3)
-            startPosition = transform.position + new Vector3(-60, 0, 0);
+            startPosition = transform.position + new Vector3(-240, 0, 0);
         else if (tmp.Count == 2)
-            startPosition = transform.position + new Vector3(-30, 0, 0);
+            startPosition = transform.position + new Vector3(-120, 0, 0);
         else if (tmp.Count == 1)
             startPosition = transform.position;
 
