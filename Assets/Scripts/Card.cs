@@ -32,6 +32,10 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
             _validPostionGroups = GameEngine.GetValidPositionsGroups(Type);
             ValidGroupsToValidPositions();
         }
+        else if (CardType.Meteor == Type) // Handle Meteor card type
+        {
+            _validPositions = GameEngine.GetValidPositions(Type);
+        }
     }
 
     public void OnDrag(PointerEventData eventData)

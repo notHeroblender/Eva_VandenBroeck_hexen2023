@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-
 public class MoveSetCollection 
 {
     public static List<List<Position>> GetValidTilesForShoot(PieceView player, Board board)
@@ -29,7 +28,19 @@ public class MoveSetCollection
 
         return positions;
     }
+    public static List<List<Position>> GetTileRing(Position position, Board board)
+    {
+        List<List<Position>> positions = new List<List<Position>>();
 
+        positions.Add(new MoveSetHelper(board, position).RightUp(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).Right(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).RightDown(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).LeftUp(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).Left(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).LeftDown(1).CollectValidPositions());
+
+        return positions;
+    }
 
     private static List<Position> GetTileConeRightUp(PieceView player, Board board)
     {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public class Engine
@@ -65,6 +66,16 @@ public class Engine
                             _board.Take(pos);
                     }
                 }
+                else if (card.Type == CardType.Meteor)
+                {
+                    List<List<Position>> positions = MoveSetCollection.GetTileRing(position, _board);
+                    List<Position> surroundingPositions = new List<Position>();
+                    SetActiveTiles(surroundingPositions);
+                    foreach (Position pos in surroundingPositions)
+                    {
+                        _board.Take(pos);
+                    }
+                }
             }
         }
         _deck.DeckUpdate();
@@ -106,6 +117,20 @@ public class Engine
                     }
                 }
                 break;
+
+            case CardType.Meteor:
+                List<List<Position>> positionLists = MoveSetCollection.GetTileRing(position, _board);
+                List<Position> mPositions = new List<Position>();
+
+                foreach (var posList in positionLists)
+                {
+                    mPositions.AddRange(posList);
+                }
+
+                mPositions.Add(position); // Add the center position
+                SetActiveTiles(mPositions);
+                break;
+
             default:
                 _selectedPositions = new List<Position>();
                 break;
@@ -140,6 +165,11 @@ public class Engine
                     positions.Add(position);
                 }
             }
+            return positions;
+        }
+        else if (card == CardType.Meteor) // allow meteor on any tile
+        {
+            positions = _boardView.TilePositions;
             return positions;
         }
         return null;
