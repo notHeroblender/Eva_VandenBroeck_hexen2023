@@ -13,12 +13,13 @@ public class MoveSetHelper
 
     public MoveSetHelper(Board board, Position fromPosition)
     {
-        if (!board.TryGetPiece(fromPosition, out var piece))
-            Debug.Log("Was not be able to get the piece");
+        //if (!board.TryGetPiece(fromPosition, out var piece))
+        //    Debug.Log("Was not be able to get the piece");
 
         _board = board;
         _fromPosition = fromPosition;
-        _player = piece.Player;
+        _player = Player.Player1;
+        //_player = piece.Player; //meteor null
     }
     public List<Position> CollectValidPositions()
     {

@@ -27,14 +27,10 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
 
         if (CardType.Move == Type)
             _validPositions = GameEngine.GetValidPositions(Type);   
-        else if(CardType.Shoot == Type || CardType.Slash == Type || CardType.ShockWave == Type )
+        else if(CardType.Shoot == Type || CardType.Slash == Type || CardType.ShockWave == Type || CardType.Meteor == Type)
         {
             _validPostionGroups = GameEngine.GetValidPositionsGroups(Type);
             ValidGroupsToValidPositions();
-        }
-        else if (CardType.Meteor == Type) // Handle Meteor card type
-        {
-            _validPositions = GameEngine.GetValidPositions(Type);
         }
     }
 

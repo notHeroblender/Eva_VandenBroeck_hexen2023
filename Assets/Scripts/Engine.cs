@@ -1,5 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using UnityEngine;
+using UnityEngine.UIElements;
 
 public class Engine
 {
@@ -23,14 +26,32 @@ public class Engine
 
     public void CardLogic(Position position)
     {
+        UnityEngine.Debug.Log("Eva: CardLogic triggered, Position: " + position);
         var cards = _deck.GetComponentsInChildren<Card>();
         foreach (Card card in cards)
         {
             if (card.IsPlayed)
             {
+                UnityEngine.Debug.Log("Eva: Card.IsPlayed");
                 if (card.Type == CardType.Move)
                 {
                     card.IsPlayed = _board.Move(PositionHelper.WorldToHexPosition(_player.WorldPosition), position);
+                }
+                else if (card.Type == CardType.Meteor)
+                {
+                    UnityEngine.Debug.Log("Eva: case Meteor");
+                    List<List<Position>> positions = MoveSetCollection.GetTileRing(position, _board);
+                    List<Position> surroundingPositions = new List<Position>();
+                    SetActiveTiles(surroundingPositions);
+                    foreach (Position pos in surroundingPositions)
+                    {
+                        _board.Take(pos);
+                    }
+                    //foreach (Position pos in _selectedPositions)
+                    //{
+                        UnityEngine.Debug.Log("Eva: taking pieces");
+                    //    _board.Take(pos);
+                    //}
                 }
                 else if (!_selectedPositions.Contains(position))
                 {
@@ -66,15 +87,9 @@ public class Engine
                             _board.Take(pos);
                     }
                 }
-                else if (card.Type == CardType.Meteor)
+                else
                 {
-                    List<List<Position>> positions = MoveSetCollection.GetTileRing(position, _board);
-                    List<Position> surroundingPositions = new List<Position>();
-                    SetActiveTiles(surroundingPositions);
-                    foreach (Position pos in surroundingPositions)
-                    {
-                        _board.Take(pos);
-                    }
+                    UnityEngine.Debug.Log("Eva: CardLogic failed");
                 }
             }
         }
@@ -167,11 +182,6 @@ public class Engine
             }
             return positions;
         }
-        else if (card == CardType.Meteor) // allow meteor on any tile
-        {
-            positions = _boardView.TilePositions;
-            return positions;
-        }
         return null;
     }
 
@@ -184,6 +194,10 @@ public class Engine
         else if (card == CardType.Slash || card == CardType.ShockWave)
         {
             return MoveSetCollection.GetValidTilesForCones(_player, _board);
+        }
+        else if (card == CardType.Meteor)
+        {
+            return MoveSetCollection.GetAllTiles(_board);
         }
         return null;
     }

@@ -41,6 +41,39 @@ public class MoveSetCollection
 
         return positions;
     }
+    public static List<List<Position>> GetAllTiles(Board board)
+    {
+        List<List<Position>> positions = new List<List<Position>>();
+
+        positions.Add(new MoveSetHelper(board, new Position(-3,0)).RightUp().CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, new Position(-3, 1)).RightUp().CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, new Position(-3, 2)).RightUp().CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, new Position(-3, 3)).RightUp().CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, new Position(-2, 3)).RightUp().CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, new Position(-1, 3)).RightUp().CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, new Position(0, 3)).RightUp().CollectValidPositions());
+
+
+        return positions;
+    }
+
+    private static Position HexagonalRingOffset(int ringNumber, int sideIndex)
+    {
+        int dx = HexagonalDirections[sideIndex].Q * ringNumber; //q and r could be switched idk
+        int dy = HexagonalDirections[sideIndex].R * ringNumber;
+        return new Position(dx, dy);
+    }
+
+    private static Position HexagonalDirection(int directionIndex)
+    {
+        return HexagonalDirections[directionIndex];
+    }
+
+    private static readonly Position[] HexagonalDirections = new Position[]
+    {
+    new Position(1, 0), new Position(1, -1), new Position(0, -1),
+    new Position(-1, 0), new Position(-1, 1), new Position(0, 1)
+    };
 
     private static List<Position> GetTileConeRightUp(PieceView player, Board board)
     {
