@@ -1,3 +1,5 @@
+using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class GameLoop : MonoBehaviour
@@ -48,10 +50,17 @@ public class GameLoop : MonoBehaviour
         _engine = new Engine(_board, _boardView, player, _deck, _pieces);
 
         _deck.SetupCards(_engine);
+        _deck.GameObject().SetActive(false);
     }
 
     private void OnPositionClicked(object sender, PositionEventArgs e)
     {
         _engine.CardLogic(e.Position);
     }
+
+    //public void StartButton()
+    //{
+    //    _deck.GameObject().SetActive(true);
+    //    Console.WriteLine("game started");
+    //}
 }
