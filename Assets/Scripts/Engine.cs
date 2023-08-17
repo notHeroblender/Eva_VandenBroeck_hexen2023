@@ -32,26 +32,32 @@ public class Engine
         {
             if (card.IsPlayed)
             {
-                UnityEngine.Debug.Log("Eva: Card.IsPlayed");
                 if (card.Type == CardType.Move)
                 {
                     card.IsPlayed = _board.Move(PositionHelper.WorldToHexPosition(_player.WorldPosition), position);
                 }
                 else if (card.Type == CardType.Meteor)
                 {
-                    UnityEngine.Debug.Log("Eva: case Meteor");
                     List<List<Position>> positions = MoveSetCollection.GetTileRing(position, _board);
-                    List<Position> surroundingPositions = new List<Position>();
-                    SetActiveTiles(surroundingPositions);
-                    foreach (Position pos in surroundingPositions)
+                    List<Position> positionList = new List<Position>(); //make new list for middle position
+                    positionList.Add(position); //add middle position
+                    positions.Add(positionList); //add list to list
+
+                    // Iterate through the outer list
+                    for (int i = 0; i < positions.Count; i++)
                     {
-                        _board.Take(pos);
+                        List<Position> innerList = positions[i];
+
+                        // Iterate through the inner list
+                        for (int j = 0; j < innerList.Count; j++)
+                        {
+                            Position vector = innerList[j];
+                        }
+                        foreach (Position pos in innerList)
+                        {
+                            _board.Take(pos);
+                        }
                     }
-                    //foreach (Position pos in _selectedPositions)
-                    //{
-                        UnityEngine.Debug.Log("Eva: taking pieces");
-                    //    _board.Take(pos);
-                    //}
                 }
                 else if (!_selectedPositions.Contains(position))
                 {

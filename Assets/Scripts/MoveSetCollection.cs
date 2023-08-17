@@ -32,6 +32,7 @@ public class MoveSetCollection
     {
         List<List<Position>> positions = new List<List<Position>>();
 
+        positions.Add(new MoveSetHelper(board, position).CollectValidPositions());
         positions.Add(new MoveSetHelper(board, position).RightUp(1).CollectValidPositions());
         positions.Add(new MoveSetHelper(board, position).Right(1).CollectValidPositions());
         positions.Add(new MoveSetHelper(board, position).RightDown(1).CollectValidPositions());
