@@ -1,17 +1,20 @@
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Buttons : MonoBehaviour
 {
-    [SerializeField] private Deck _deck;
+    public EventHandler StartClicked;
     [SerializeField] private Button _startButton;
 
-    public void StartButton()
+    public void Play() => OnStartClicked(EventArgs.Empty);
+    public void OnStartClicked(EventArgs e)
     {
-        _deck.GameObject().SetActive(true);
+        var handler = StartClicked;
+        handler?.Invoke(this, e);
+        //SceneManager.LoadSceneAsync(States.Game, LoadSceneMode.Additive);
         _startButton.gameObject.SetActive(false);
-        Console.WriteLine("Game started");
     }
 }
