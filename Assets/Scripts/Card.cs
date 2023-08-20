@@ -58,7 +58,13 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(ray, out hit, 100) && hit.collider.tag == "Tile")
+        if (Type == CardType.Rain)
+        {
+            GameEngine.DestroyRandom();
+            Destroy(_copy);
+            IsPlayed = true;
+        }
+        else if (Physics.Raycast(ray, out hit, 100) && hit.collider.tag == "Tile")
         {
             PositionView positionView = hit.transform.gameObject.GetComponent<PositionView>();
             Destroy(_copy);

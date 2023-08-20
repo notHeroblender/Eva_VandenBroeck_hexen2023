@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using UnityEditor;
+using UnityEngine;
 
 public class PieceView : MonoBehaviour
 {
@@ -18,6 +19,13 @@ public class PieceView : MonoBehaviour
     internal void Taken()
     {
         gameObject.SetActive(false);
+
+        if (this.gameObject.CompareTag("Player")) //if the player is removed, end the game
+        {
+            Debug.Log("you died");
+            EditorApplication.ExitPlaymode();
+            Application.Quit();
+        }
     }
 
     internal void Placed(Vector3 WorldPosition)

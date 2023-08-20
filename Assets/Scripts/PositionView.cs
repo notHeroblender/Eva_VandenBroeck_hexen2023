@@ -29,4 +29,8 @@ public class PositionView : MonoBehaviour, IPointerClickHandler
     {
         OnActivate?.Invoke();
     }
+    internal void Remove()
+    {
+        this.gameObject.SetActive(false);
+    }
 }
