@@ -113,48 +113,51 @@ public class Engine
                 }
                 else if (card.Type == CardType.Shoot)
                 {
+                    //
+                    ExecuteShootCardLogic(card, cardIndex);
+                    //
                     //replay: execute/redo
-                    List<PieceView> takenPieces = new();
-                    _commandQueue.ReturnCommands();
-                    foreach (var pos in _selectedPositions)
-                    {
-                        UnityEngine.Debug.Log("Eva: selectedposition: " + pos);
-                    }
-                    Action execute = () =>
-                    {
-                        foreach (Position pos in _selectedPositions)
-                        {
-                            foreach (var piece in _pieces)
-                            {
-                                var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
-                                if (pos.Q == piecePos.Q && pos.R == piecePos.R && piece.gameObject.activeSelf)
-                                {
-                                    takenPieces.Add(piece);
-                                    UnityEngine.Debug.Log("Eva: pieces added");
-                                }
-                            }
-                            _board.Take(pos);
-                            UnityEngine.Debug.Log("Eva: shoot executed");
-                        }
-                        _deck.DeckUpdate();
-                    };
+                    //List<PieceView> takenPieces = new();
+                    //_commandQueue.ReturnCommands();
+                    //foreach (var pos in _selectedPositions)
+                    //{
+                    //    UnityEngine.Debug.Log("Eva: selectedposition: " + pos);
+                    //}
+                    //Action execute = () =>
+                    //{
+                    //    foreach (Position pos in _selectedPositions)
+                    //    {
+                    //        foreach (var piece in _pieces)
+                    //        {
+                    //            var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                    //            if (pos.Q == piecePos.Q && pos.R == piecePos.R && piece.gameObject.activeSelf)
+                    //            {
+                    //                takenPieces.Add(piece);
+                    //                UnityEngine.Debug.Log("Eva: pieces added");
+                    //            }
+                    //        }
+                    //        _board.Take(pos);
+                    //        UnityEngine.Debug.Log("Eva: shoot executed");
+                    //    }
+                    //    _deck.DeckUpdate();
+                    //};
                     //replay: undo
-                    Action undo = () =>
-                    {
-                        foreach (var piece in takenPieces)
-                        {
-                            var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
-                            _board.Place(piecePos, piece);
-                            //
-                            bool wasActive = piece.gameObject.activeSelf;
-                            piece.gameObject.SetActive(wasActive);
-                            //
-                            //piece.gameObject.SetActive(true);
-                            UnityEngine.Debug.Log("Eva: shoot undone");
-                        }
-                        card.IsPlayed = false;
-                        _deck.ReturnCard(card, cardIndex);
-                    };
+                    //Action undo = () =>
+                    //{
+                    //    foreach (var piece in takenPieces)
+                    //    {
+                    //        var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                    //        _board.Place(piecePos, piece);
+                    //        //
+                    //        bool wasActive = piece.gameObject.activeSelf;
+                    //        piece.gameObject.SetActive(wasActive);
+                    //        //
+                    //        //piece.gameObject.SetActive(true);
+                    //        UnityEngine.Debug.Log("Eva: shoot undone");
+                    //    }
+                    //    card.IsPlayed = false;
+                    //    _deck.ReturnCard(card, cardIndex);
+                    //};
                 }
                 else if (card.Type == CardType.ShockWave)
                 {
@@ -231,6 +234,53 @@ public class Engine
         }
         _deck.DeckUpdate();
     }
+
+    //
+    private void ExecuteShootCardLogic(Card card, int cardIndex)
+    {
+        var takenPieces = new List<PieceView>();
+        var positionsToTake = new List<Position>();
+
+        foreach (Position pos in _selectedPositions)
+        {
+            if (!_selectedPositions.Contains(pos))
+                continue;
+
+            foreach (var piece in _pieces)
+            {
+                var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                if (pos.Q == piecePos.Q && pos.R == piecePos.R && piece.gameObject.activeSelf)
+                {
+                    takenPieces.Add(piece);
+                    positionsToTake.Add(pos);
+                }
+            }
+        }
+        // Execute logic using a single command
+        _commandQueue.ReturnCommands();
+        _commandQueue.Execute(new DelegateCommand(
+            execute: () =>
+            {
+                foreach (Position posToTake in positionsToTake)
+                {
+                    _board.Take(posToTake);
+                }
+                _deck.DeckUpdate();
+            },
+            undo: () =>
+            {
+                for (int i = 0; i < positionsToTake.Count; i++)
+                {
+                    _board.Place(positionsToTake[i], takenPieces[i]);
+                }
+                card.IsPlayed = false;
+                _deck.ReturnCard(card, cardIndex);
+            }
+        ));
+
+        card.IsPlayed = true;
+    }
+    //
 
     public void SetHighlights(Position position, CardType type, List<Position> validPositions, List<List<Position>> validPositionGroups = null)
     {
