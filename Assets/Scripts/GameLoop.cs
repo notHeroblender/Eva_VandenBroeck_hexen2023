@@ -9,10 +9,13 @@ public class GameLoop : MonoBehaviour
     private BoardView _boardView;
     private Engine _engine;
     private PieceView[] _pieces;
+    public CommandQueue _commandQueue;
 
 
     void Start()
     {
+        _commandQueue = new CommandQueue();
+
         SpawnHelper.SpawnEnemies(_enemy, 8);
 
         _deck = FindObjectOfType<Deck>();
@@ -45,7 +48,7 @@ public class GameLoop : MonoBehaviour
         boardView.PositionClicked += OnPositionClicked;
         _boardView = boardView;
 
-        _engine = new Engine(_board, _boardView, player, _deck, _pieces);
+        _engine = new Engine(_board, _boardView, player, _deck, _pieces, _commandQueue);
 
         _deck.SetupCards(_engine);
     }

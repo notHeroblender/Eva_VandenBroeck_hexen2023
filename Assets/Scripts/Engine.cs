@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine.Rendering;
 
 public class Engine
 {
@@ -10,16 +12,18 @@ public class Engine
     private Deck _deck;
     private PieceView[] _pieces;
     private BoardView _boardView;
+    private CommandQueue _commandQueue;
 
-    public Engine(Board board, BoardView boardView, PieceView player, Deck deck, PieceView[] pieces)
+    public Engine(Board board, BoardView boardView, PieceView player, Deck deck, PieceView[] pieces, CommandQueue commandQueue)
     {
         _board = board;
         _player = player;
         _deck = deck;
         _pieces = pieces;
         _boardView = boardView;
+        _commandQueue = commandQueue;
     }
-
+    
     public void CardLogic(Position position)
     {
         var cards = _deck.GetComponentsInChildren<Card>();
@@ -27,9 +31,33 @@ public class Engine
         {
             if (card.IsPlayed)
             {
+                //replay: 
+                var cardIndex = _deck._cards.IndexOf(card.gameObject);
+
                 if (card.Type == CardType.Move)
                 {
-                    card.IsPlayed = _board.Move(PositionHelper.WorldToHexPosition(_player.WorldPosition), position);
+                    //card.IsPlayed = _board.Move(PositionHelper.WorldToHexPosition(_player.WorldPosition), position);
+
+                    //replay: execute/redo
+                    var playerPos = PositionHelper.WorldToHexPosition(_player.WorldPosition);
+                    _commandQueue.ReturnCommands();
+                    Action execute = () =>
+                    {
+                        card.IsPlayed = _board.Move(playerPos, position);
+                        card.IsPlayed = true;
+                        UnityEngine.Debug.Log("Eva: move executed");
+                        _deck.DeckUpdate(); //too much deckupdate?
+                    };
+                    //replay: undo
+                    Action undo = () =>
+                    {
+                        _board.Move(position, playerPos);
+                        card.IsPlayed = false;
+                        _deck.ReturnCard(card, cardIndex);
+                        UnityEngine.Debug.Log("Eva: move undone");
+                    };
+                    var command = new DelegateCommand(execute, undo);
+                    _commandQueue.Execute(command);
                 }
                 else if (!_selectedPositions.Contains(position))
                 {
@@ -38,32 +66,166 @@ public class Engine
                 }
                 else if (card.Type == CardType.Slash)
                 {
-                    foreach (Position pos in _selectedPositions)
+                    //replay: execute/redo
+                    List<PieceView> takenPieces = new();
+                    _commandQueue.ReturnCommands();
+                    Action execute = () =>
                     {
-                        _board.Take(pos);
-                    }
+                        foreach (Position pos in _selectedPositions)
+                        {
+                            UnityEngine.Debug.Log("Eva: slash started");
+                            //replay: 
+                            foreach (var piece in _pieces)
+                            {
+                                var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                                if (pos.Q == piecePos.Q && pos.R == piecePos.R && piece.gameObject.activeSelf)
+                                {
+                                    takenPieces.Add(piece);
+                                    UnityEngine.Debug.Log("Eva: pieces added");
+                                }
+                            }
+
+                            _board.Take(pos);
+                            UnityEngine.Debug.Log("Eva: slash executed");
+                        }
+                        //replay: 
+                        _deck.DeckUpdate();
+                    };
+                    //replay: undo
+                    Action undo = () =>
+                    {
+                        foreach (var piece in takenPieces)
+                        {
+                            var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                            _board.Place(piecePos, piece);
+                            //
+                            bool wasActive = piece.gameObject.activeSelf;
+                            piece.gameObject.SetActive(wasActive);
+                            //
+                            //piece.gameObject.SetActive(true);
+                            UnityEngine.Debug.Log("Eva: slash undone");
+                        }
+                        card.IsPlayed = false;
+                        _deck.ReturnCard(card, cardIndex);
+                    };
+                    var command = new DelegateCommand(execute, undo);
+                    _commandQueue.Execute(command);
                 }
                 else if (card.Type == CardType.Shoot)
                 {
-                    foreach (Position pos in _selectedPositions)
+                    //replay: execute/redo
+                    List<PieceView> takenPieces = new();
+                    _commandQueue.ReturnCommands();
+                    foreach (var pos in _selectedPositions)
                     {
-                        _board.Take(pos);
+                        UnityEngine.Debug.Log("Eva: selectedposition: " + pos);
                     }
+                    Action execute = () =>
+                    {
+                        foreach (Position pos in _selectedPositions)
+                        {
+                            foreach (var piece in _pieces)
+                            {
+                                var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                                if (pos.Q == piecePos.Q && pos.R == piecePos.R && piece.gameObject.activeSelf)
+                                {
+                                    takenPieces.Add(piece);
+                                    UnityEngine.Debug.Log("Eva: pieces added");
+                                }
+                            }
+                            _board.Take(pos);
+                            UnityEngine.Debug.Log("Eva: shoot executed");
+                        }
+                        _deck.DeckUpdate();
+                    };
+                    //replay: undo
+                    Action undo = () =>
+                    {
+                        foreach (var piece in takenPieces)
+                        {
+                            var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                            _board.Place(piecePos, piece);
+                            //
+                            bool wasActive = piece.gameObject.activeSelf;
+                            piece.gameObject.SetActive(wasActive);
+                            //
+                            //piece.gameObject.SetActive(true);
+                            UnityEngine.Debug.Log("Eva: shoot undone");
+                        }
+                        card.IsPlayed = false;
+                        _deck.ReturnCard(card, cardIndex);
+                    };
                 }
                 else if (card.Type == CardType.ShockWave)
                 {
-                    foreach (Position pos in _selectedPositions)
+                    //replay: execute/redo
+                    List<PieceView> takenPieces = new();
+                    List<PieceView> movedPieces = new();
+                    List<Position> moveToPos = new();
+                    _commandQueue.ReturnCommands();
+                    Action execute = () =>
                     {
-                        Position offset = HexHelper.AxialSubtract(pos, PositionHelper.WorldToHexPosition(_player.WorldPosition));
-                        Position moveTo = HexHelper.AxialAdd(pos, offset);
-
-                        if (_board.IsValidPosition(moveTo))
+                        foreach (Position pos in _selectedPositions)
                         {
-                            _board.Move(pos, moveTo);
+                            Position offset = HexHelper.AxialSubtract(pos, PositionHelper.WorldToHexPosition(_player.WorldPosition));
+                            Position moveTo = HexHelper.AxialAdd(pos, offset);
+
+                            if (_board.IsValidPosition(moveTo))
+                            {
+                                _board.Move(pos, moveTo);
+                                foreach (var piece in _pieces)
+                                {
+                                    var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                                    if (pos.Q == piecePos.Q && pos.R == piecePos.R && piece.gameObject.activeSelf)
+                                    {
+                                        movedPieces.Add(piece);
+                                        moveToPos.Add(moveTo);
+                                        UnityEngine.Debug.Log("Eva: move to pieces added");
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                foreach (var piece in _pieces)
+                                {
+                                    var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                                    if (pos.Q == piecePos.Q && pos.R == piecePos.R && piece.gameObject.activeSelf)
+                                    {
+                                        takenPieces.Add(piece);
+                                        UnityEngine.Debug.Log("Eva: taken pieces added");
+                                    }
+                                }
+                                _board.Take(pos);
+                            }
                         }
-                        else
-                            _board.Take(pos);
-                    }
+                        _deck.DeckUpdate();
+                    };
+                    //replay: undo
+                    Action undo = () =>
+                    {
+                        foreach (var piece in takenPieces)
+                        {
+                            if (piece != null)
+                            {
+                                var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                                _board.Place(piecePos, piece);
+                                piece.gameObject.SetActive(true);
+                            }
+                        }
+                        foreach (var piece in movedPieces)
+                        {
+                            if (piece != null)
+                            {
+                                var piecePos = PositionHelper.WorldToHexPosition(piece.WorldPosition);
+                                _board.Move(moveToPos[movedPieces.IndexOf(piece)], piecePos);
+                                UnityEngine.Debug.Log("Eva: push undone");
+                            }
+                        }
+                        card.IsPlayed = false;
+                        _deck.ReturnCard(card, cardIndex);
+                    };
+                    var command = new DelegateCommand(execute, undo);
+                    _commandQueue.Execute(command);
                 }
             }
         }
