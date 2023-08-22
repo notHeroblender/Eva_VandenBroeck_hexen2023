@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class GameLoop : MonoBehaviour
@@ -10,9 +11,9 @@ public class GameLoop : MonoBehaviour
     private Engine _engine;
     private PieceView[] _pieces;
 
-    
+    private Action _cardLogicCompletedCallback;
+
     private StateMachine _stateMachine;
-    [SerializeField] private int _enemyAmount = 8;
 
     void Start()
     {
@@ -54,10 +55,10 @@ public class GameLoop : MonoBehaviour
 
         _stateMachine = gameObject.AddComponent<StateMachine>();
         _stateMachine.Register(States.Enemy, gameObject.AddComponent<EnemyState>());
-        _stateMachine.Register(States.Player, new PlayerState(_enemy, _board, _deck, _boardView, _engine, _pieces));
+        _stateMachine.Register(States.Player, new PlayerState(_enemy, _board, _deck, _boardView, _engine, _pieces, _cardLogicCompletedCallback));
         _stateMachine.InitialState = States.Player;
     }
-    
+
     private void OnPositionClicked(object sender, PositionEventArgs e)
     {
         _engine.CardLogic(e.Position);

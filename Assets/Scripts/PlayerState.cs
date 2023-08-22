@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -12,7 +14,9 @@ public class PlayerState : State
     private Engine _engine;
     private PieceView[] _pieces;
 
-    public PlayerState(GameObject enemy, Board board, Deck deck, BoardView boardView, Engine engine, PieceView[] pieces)
+    private Action _cardLogicCompletedCallback;
+
+    public PlayerState(GameObject enemy, Board board, Deck deck, BoardView boardView, Engine engine, PieceView[] pieces, Action cardLogicCompletedCallback)
     {
         _enemy = enemy;
         _board = board;
@@ -20,18 +24,14 @@ public class PlayerState : State
         _boardView = boardView;
         _engine = engine;
         _pieces = pieces;
+
+        _cardLogicCompletedCallback = cardLogicCompletedCallback;
     }
 
     public override void OnEnter()
     {
         base.OnEnter();
-    }
-    public override void OnExit()
-    {
-        base.OnExit();
-    }
-    void Start()
-    {
+
         var piecesViews = FindObjectsOfType<PieceView>();
 
         PieceView player = null;
@@ -48,11 +48,24 @@ public class PlayerState : State
 
         _engine = new Engine(_board, _boardView, player, _deck, _pieces);
 
-        _deck.SetupCards(_engine);
+        //_deck.SetupCards(_engine);
+    }
+    public override void OnExit()
+    {
+        base.OnExit();
     }
     private void OnPositionClicked(object sender, PositionEventArgs e)
     {
+        GameObject[] entities = GameObject.FindGameObjectsWithTag("Enemy");
         _engine.CardLogic(e.Position);
+        foreach (var entity in entities)
+        {
+            _cardLogicCompletedCallback?.Invoke();
+        }
+        OnCardLogicCompleted();
+    }
+    private void OnCardLogicCompleted()
+    {
         StateMachine.ChangeTo(States.Enemy);
     }
 }
