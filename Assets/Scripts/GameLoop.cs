@@ -10,6 +10,9 @@ public class GameLoop : MonoBehaviour
     private Engine _engine;
     private PieceView[] _pieces;
 
+    
+    private StateMachine _stateMachine;
+    [SerializeField] private int _enemyAmount = 8;
 
     void Start()
     {
@@ -34,13 +37,13 @@ public class GameLoop : MonoBehaviour
 
         PieceView player = null;
         foreach (var pieceView in piecesViews)
-         if (pieceView.Player == Player.Player1)
-         {
-            player = pieceView;
-            break;
-         }
+            if (pieceView.Player == Player.Player1)
+            {
+                player = pieceView;
+                break;
+            }
         _pieces = piecesViews;
-        
+
         var boardView = FindObjectOfType<BoardView>();
         boardView.PositionClicked += OnPositionClicked;
         _boardView = boardView;
@@ -48,8 +51,13 @@ public class GameLoop : MonoBehaviour
         _engine = new Engine(_board, _boardView, player, _deck, _pieces);
 
         _deck.SetupCards(_engine);
-    }
 
+        _stateMachine = gameObject.AddComponent<StateMachine>();
+        _stateMachine.Register(States.Enemy, gameObject.AddComponent<EnemyState>());
+        _stateMachine.Register(States.Player, new PlayerState(_enemy, _board, _deck, _boardView, _engine, _pieces));
+        _stateMachine.InitialState = States.Player;
+    }
+    
     private void OnPositionClicked(object sender, PositionEventArgs e)
     {
         _engine.CardLogic(e.Position);
