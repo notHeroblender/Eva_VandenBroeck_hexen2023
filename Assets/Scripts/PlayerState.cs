@@ -56,12 +56,8 @@ public class PlayerState : State
     }
     private void OnPositionClicked(object sender, PositionEventArgs e)
     {
-        GameObject[] entities = GameObject.FindGameObjectsWithTag("Enemy");
         _engine.CardLogic(e.Position);
-        foreach (var entity in entities)
-        {
-            _cardLogicCompletedCallback?.Invoke();
-        }
+        _cardLogicCompletedCallback?.Invoke();
         OnCardLogicCompleted();
     }
     private void OnCardLogicCompleted()

@@ -58,6 +58,7 @@ public class MoveSetCollection
         return positions;
     }
 
+
     public static List<List<Position>> GetValidTilesForBlitz(PieceView player, Board board)
     {
         List<List<Position>> positions = new List<List<Position>>();
@@ -68,6 +69,7 @@ public class MoveSetCollection
         return positions;
     }
 
+    
     private static List<Position> GetTileConeRightUp(PieceView player, Board board)
     {
         return new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition))

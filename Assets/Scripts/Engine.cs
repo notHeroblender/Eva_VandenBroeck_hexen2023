@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
@@ -12,6 +13,9 @@ public class Engine
     private PieceView[] _pieces;
     private BoardView _boardView;
 
+    private bool _cardLogicCompleted = false;
+    public bool CardLogicCompleted => _cardLogicCompleted;
+
     public Engine(Board board, BoardView boardView, PieceView player, Deck deck, PieceView[] pieces)
     {
         _board = board;
@@ -23,6 +27,7 @@ public class Engine
 
     public void CardLogic(Position position)
     {
+        _cardLogicCompleted = false;
         var cards = _deck.GetComponentsInChildren<Card>();
         foreach (Card card in cards)
         {
@@ -68,15 +73,18 @@ public class Engine
                 }
                 else if (card.Type == CardType.Blitz)
                 {
-                    foreach (Position pos in _selectedPositions)
+                    int random = UnityEngine.Random.Range(0, _selectedPositions.Count);
+                    while (!_board.Take(_selectedPositions[random]))
                     {
-                        _board.Take(pos);
-                        UnityEngine.Debug.Log("Eva: blitz pieces taken");
+                        random = UnityEngine.Random.Range(0, _selectedPositions.Count);
                     }
+                    _board.Take(_selectedPositions[random]);
+                    UnityEngine.Debug.Log("Eva: blitz pieces taken");
                 }
             }
         }
         _deck.DeckUpdate();
+        _cardLogicCompleted = true;
     }
 
     public void SetHighlights(Position position, CardType type, List<Position> validPositions, List<List<Position>> validPositionGroups = null)
