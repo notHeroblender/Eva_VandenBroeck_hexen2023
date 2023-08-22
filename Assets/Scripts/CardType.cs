@@ -3,7 +3,8 @@
         Move,
         ShockWave,
         Slash,
-        Shoot
+        Shoot,
+        Blitz
     }
     public interface ICard
     {

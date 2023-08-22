@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 
 public class Engine
 {
@@ -65,6 +66,14 @@ public class Engine
                             _board.Take(pos);
                     }
                 }
+                else if (card.Type == CardType.Blitz)
+                {
+                    foreach (Position pos in _selectedPositions)
+                    {
+                        _board.Take(pos);
+                        UnityEngine.Debug.Log("Eva: blitz pieces taken");
+                    }
+                }
             }
         }
         _deck.DeckUpdate();
@@ -105,6 +114,17 @@ public class Engine
                         }
                     }
                 }
+                break;
+            case CardType.Blitz:
+                List<List<Position>> positionLists = MoveSetCollection.GetValidTilesForBlitz(_player, _board);
+                List<Position> mPositions = new List<Position>();
+
+                foreach (var posList in positionLists)
+                {
+                    mPositions.AddRange(posList);
+                }
+
+                SetActiveTiles(mPositions);
                 break;
             default:
                 _selectedPositions = new List<Position>();
@@ -154,6 +174,10 @@ public class Engine
         else if (card == CardType.Slash || card == CardType.ShockWave)
         {
             return MoveSetCollection.GetValidTilesForCones(_player, _board);
+        }
+        else if (card == CardType.Blitz)
+        {
+            return MoveSetCollection.GetValidTilesForBlitz(_player, _board);
         }
         return null;
     }

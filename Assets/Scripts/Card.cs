@@ -27,7 +27,7 @@ public class Card : MonoBehaviour, IDragHandler, IBeginDragHandler, IEndDragHand
 
         if (CardType.Move == Type)
             _validPositions = GameEngine.GetValidPositions(Type);   
-        else if(CardType.Shoot == Type || CardType.Slash == Type || CardType.ShockWave == Type )
+        else if(CardType.Shoot == Type || CardType.Slash == Type || CardType.ShockWave == Type || CardType.Blitz == Type )
         {
             _validPostionGroups = GameEngine.GetValidPositionsGroups(Type);
             ValidGroupsToValidPositions();

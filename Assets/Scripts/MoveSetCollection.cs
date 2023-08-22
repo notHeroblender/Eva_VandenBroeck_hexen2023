@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using UnityEngine.UIElements;
 
 public class MoveSetCollection 
 {
@@ -29,7 +31,35 @@ public class MoveSetCollection
 
         return positions;
     }
+    public static List<List<Position>> GetTileRing(Position position, Board board)
+    {
+        List<List<Position>> positions = new List<List<Position>>();
 
+        positions.Add(new MoveSetHelper(board, position).RightUp(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).Right(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).RightDown(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).LeftUp(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).Left(1).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).LeftDown(1).CollectValidPositions());
+
+        return positions;
+    }
+
+    public static List<List<Position>> GetValidTilesForBlitz(PieceView player, Board board)
+    {
+        List<List<Position>> positions = new List<List<Position>>();
+
+        positions = GetTileRing(PositionHelper.WorldToHexPosition(player.WorldPosition), board);
+        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).RightUp(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).Right(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).RightDown(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).LeftUp(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).Left(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).LeftDown(2).CollectValidPositions());
+        UnityEngine.Debug.Log("Eva: valid blitz tiles: " + positions.Count);
+
+        return positions;
+    }
 
     private static List<Position> GetTileConeRightUp(PieceView player, Board board)
     {
@@ -61,4 +91,5 @@ public class MoveSetCollection
         return new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition))
             .LeftDown(1).Left(1).RightDown(1).CollectValidPositions(); //LeftDown
     }
+
 }
