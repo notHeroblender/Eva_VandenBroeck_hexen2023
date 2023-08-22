@@ -25,6 +25,20 @@ public class MoveSetHelper
         return _validPositions;
     }
 
+    //second ring extra positions
+    public MoveSetHelper UpUp(int maxSteps = int.MaxValue, params Validator[] validators)
+            => Collect(1, -2, maxSteps, validators);
+    public MoveSetHelper RightRightUp(int maxSteps = int.MaxValue, params Validator[] validators)
+            => Collect(2, -1, maxSteps, validators);
+    public MoveSetHelper RightRightDown(int maxSteps = int.MaxValue, params Validator[] validators)
+            => Collect(1, 1, maxSteps, validators);
+    public MoveSetHelper DownDown(int maxSteps = int.MaxValue, params Validator[] validators)
+            => Collect(-1, 2, maxSteps, validators);
+    public MoveSetHelper LeftLeftDown(int maxSteps = int.MaxValue, params Validator[] validators)
+            => Collect(-2, 1, maxSteps, validators);
+    public MoveSetHelper LeftLeftUp(int maxSteps = int.MaxValue, params Validator[] validators)
+            => Collect(-1, -1, maxSteps, validators);
+
     //Right
     public MoveSetHelper RightUp(int maxSteps = int.MaxValue, params Validator[] validators)
             => Collect(0, 1, maxSteps, validators);

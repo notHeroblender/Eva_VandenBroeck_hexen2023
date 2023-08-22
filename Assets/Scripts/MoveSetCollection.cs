@@ -31,7 +31,7 @@ public class MoveSetCollection
 
         return positions;
     }
-    public static List<List<Position>> GetTileRing(Position position, Board board)
+    public static List<List<Position>> GetTileArea(Position position, Board board)
     {
         List<List<Position>> positions = new List<List<Position>>();
 
@@ -42,6 +42,19 @@ public class MoveSetCollection
         positions.Add(new MoveSetHelper(board, position).Left(1).CollectValidPositions());
         positions.Add(new MoveSetHelper(board, position).LeftDown(1).CollectValidPositions());
 
+        positions.Add(new MoveSetHelper(board, position).UpUp(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).RightUp(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).RightRightUp(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).Right(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).RightRightDown(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).RightDown(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).DownDown(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).LeftUp(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).LeftLeftDown(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).Left(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).LeftLeftUp(2).CollectValidPositions());
+        positions.Add(new MoveSetHelper(board, position).LeftDown(2).CollectValidPositions());
+
         return positions;
     }
 
@@ -49,13 +62,7 @@ public class MoveSetCollection
     {
         List<List<Position>> positions = new List<List<Position>>();
 
-        positions = GetTileRing(PositionHelper.WorldToHexPosition(player.WorldPosition), board);
-        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).RightUp(2).CollectValidPositions());
-        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).Right(2).CollectValidPositions());
-        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).RightDown(2).CollectValidPositions());
-        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).LeftUp(2).CollectValidPositions());
-        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).Left(2).CollectValidPositions());
-        positions.Add(new MoveSetHelper(board, PositionHelper.WorldToHexPosition(player.WorldPosition)).LeftDown(2).CollectValidPositions());
+        positions = GetTileArea(PositionHelper.WorldToHexPosition(player.WorldPosition), board);
         UnityEngine.Debug.Log("Eva: valid blitz tiles: " + positions.Count);
 
         return positions;
